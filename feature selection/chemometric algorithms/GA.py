@@ -48,13 +48,10 @@ def GA(X, y, number_of_generation=10):
             tprs = []
             r2_cv_all = []
             for pls_component in pls_components:
-                # PLS-DA判别分析中转换y
                 scaled_y_train = pd.get_dummies(y)
                 model_in_cv = PLSRegression(n_components=pls_component)
                 y_predict = model_selection.cross_val_predict(model_in_cv, selected_scaled_x_train, scaled_y_train, cv=10)
-                # 将预测结果即类别矩阵转换为数值标签
                 y_predict = np.array([np.argmax(i) for i in y_predict])
-
 
                 mean_fpr = np.linspace(0, 1, 100)
                 fpr, tpr, thresholds = roc_curve(y, y_predict)
@@ -66,7 +63,6 @@ def GA(X, y, number_of_generation=10):
 
                 # accuracy = accuracy_score(y, y_predict)
                 # r2_cv_all.append(accuracy)
-            # 精确度越高则个体适应度越大
             value = [np.mean(r2_cv_all)]
             print('value', value)
         return value
@@ -104,7 +100,6 @@ def GA(X, y, number_of_generation=10):
         fitnesses = map(toolbox.evaluate, invalid_ind)
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
-        # 选出来的个体(描述符)
         print('  Evaluated %i individuals' % len(invalid_ind))
 
         pop[:] = offspring
@@ -119,19 +114,11 @@ def GA(X, y, number_of_generation=10):
         print('  Min %s' % min(fits))
         print('  Max %s' % max(fits))
 
-    # 准备数据
-    data_df = pd.DataFrame(fitness)  # 关键1，将ndarray格式转换为DataFrame
-    # 更改表的索引
-    data_df.columns = ['A']  # 将第一行的0,1,2,...,9变成A,B,C,...,J
-    # 将文件写入excel表格中
-    writer = pd.ExcelWriter('方法GA_fitness.xlsx')  # 关键2，创建名称为hhh的excel表格
-    data_df.to_excel(writer, 'page_1', float_format='%.5f')  # 关键3，float_format 控制精度，将data_df写到hhh表格的第一页中。若多个文件，可以在page_2中写入
-    writer.save()  # 关键4
 
     best_individual = tools.selBest(pop, 1)[0]
     best_individual_array = np.array(best_individual)
     selected_x_variable_numbers = np.where(best_individual_array > threshold_of_variable_selection)[0]
-    print("GA的筛选变量索引：", selected_x_variable_numbers)
+    print("index：", selected_x_variable_numbers)
 
     return selected_x_variable_numbers
 
