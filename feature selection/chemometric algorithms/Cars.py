@@ -7,7 +7,6 @@ from sklearn.model_selection import KFold
 from sklearn.metrics import mean_squared_error, accuracy_score
 import copy
 
-# ref: https://blog.csdn.net/qq2512446791
 
 def PC_Cross_Validation(X, y, pc, cv):
     '''
