@@ -1,14 +1,3 @@
-"""
-    -*- coding: utf-8 -*-
-    @Time   :2022/04/12 17:10
-    @Author : Pengyou FU
-    @blogs  : https://blog.csdn.net/Echo_Code?spm=1000.2115.3001.5343
-    @github : https://github.com/FuSiry/OpenSA
-    @WeChat : Fu_siry
-    @License：Apache-2.0 license
-
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -22,10 +11,6 @@ import copy
 
 def PC_Cross_Validation(X, y, pc, cv):
     '''
-        x :光谱矩阵 nxm
-        y :浓度阵 （化学值）
-        pc:最大主成分数
-        cv:交叉验证数量
     return :
         RMSECV:各主成分数对应的RMSECV
         PRESS :各主成分数对应的PRESS
@@ -39,12 +24,10 @@ def PC_Cross_Validation(X, y, pc, cv):
             x_train, x_test = X[train_index], X[test_index]
             y_train, y_test = y[train_index], y[test_index]
 
-            # PLS-DA判别分析中转换y
             y_train = pd.get_dummies(y_train)
             pls = PLSRegression(n_components=i + 1)
             pls.fit(x_train, y_train)
             y_predict = pls.predict(x_test)
-            # 将预测结果即类别矩阵转换为数值标签
             y_predict = np.array([np.argmax(i) for i in y_predict])
             RMSE.append(accuracy_score(y_test, y_predict))
 
@@ -55,10 +38,6 @@ def PC_Cross_Validation(X, y, pc, cv):
 
 def Cross_Validation(X, y, pc, cv):
     '''
-     x :光谱矩阵 nxm
-     y :浓度阵 （化学值）
-     pc:最大主成分数
-     cv:交叉验证数量
      return :
             RMSECV:各主成分数对应的RMSECV
     '''
@@ -67,12 +46,10 @@ def Cross_Validation(X, y, pc, cv):
     for train_index, test_index in kf.split(X):
         x_train, x_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
-        # PLS-DA判别分析中转换y
         y_train = pd.get_dummies(y_train)
         pls = PLSRegression(n_components=pc)
         pls.fit(x_train, y_train)
         y_predict = pls.predict(x_test)
-        # 将预测结果即类别矩阵转换为数值标签
         y_predict = np.array([np.argmax(i) for i in y_predict])
         RMSE.append(accuracy_score(y_test, y_predict))
     RMSE_mean = np.mean(RMSE)
@@ -166,56 +143,6 @@ def CARS_Cloud(X, y, N=50, f=20, cv=10):
     Optimal = WAVE[MinIndex, :]
     boindex = np.where(Optimal != 0)
     OptWave = boindex[0]
-    print("Cars的筛选变量索引：", OptWave)
-
-    # 准备数据
-    data_df = pd.DataFrame(WaveNum)  # 关键1，将ndarray格式转换为DataFrame
-    # 更改表的索引
-    data_df.columns = ['A']  # 将第一行的0,1,2,...,9变成A,B,C,...,J
-    # 将文件写入excel表格中
-    writer = pd.ExcelWriter('方法CARS_WaveNum.xlsx')  # 关键2，创建名称为hhh的excel表格
-    data_df.to_excel(writer, 'page_1',
-                     float_format='%.5f')  # 关键3，float_format 控制精度，将data_df写到hhh表格的第一页中。若多个文件，可以在page_2中写入
-    writer.save()  # 关键4
-
-    # 准备数据
-    data_df = pd.DataFrame(RMSECV)  # 关键1，将ndarray格式转换为DataFrame
-    # 更改表的索引
-    data_df.columns = ['A']  # 将第一行的0,1,2,...,9变成A,B,C,...,J
-    # 将文件写入excel表格中
-    writer = pd.ExcelWriter('方法CARS_RMSECV.xlsx')  # 关键2，创建名称为hhh的excel表格
-    data_df.to_excel(writer, 'page_1',
-                     float_format='%.5f')  # 关键3，float_format 控制精度，将data_df写到hhh表格的第一页中。若多个文件，可以在page_2中写入
-    writer.save()  # 关键4
-
-    fig = plt.figure()
-    plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
-    plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
-    fonts = 16
-    plt.subplot(211)
-    plt.xlabel('Number of sampling runs', fontsize=fonts)
-    plt.ylabel('Number of variables', fontsize=fonts)
-    # plt.title('最佳迭代次数：' + str(MinIndex) + '次', fontsize=fonts)
-    print('最佳迭代次数：', str(MinIndex))
-    print('np.arange(N)', np.arange(N))
-    print('WaveNum', WaveNum)
-    plt.plot(np.arange(N), WaveNum)
-    plt.show()
-
-    plt.subplot(212)
-    plt.xlabel('Number of sampling runs', fontsize=fonts)
-    plt.ylabel('Accuracy', fontsize=fonts)
-    plt.plot(np.arange(N), RMSECV)
-    print('np.arange(N)', np.arange(N))
-    print('RMSECV', RMSECV)
-    plt.show()
-
-    plt.subplot(313)
-    plt.xlabel('蒙特卡洛迭代次数', fontsize=fonts)
-    # y轴是各变量索引，显示在
-    plt.ylabel('各变量系数值', fontsize=fonts)
-    plt.plot(COEFF)
-    plt.vlines(MinIndex, 0, 1e2, colors='r')
-    plt.show()
+    print("index：", OptWave)
 
     return OptWave
